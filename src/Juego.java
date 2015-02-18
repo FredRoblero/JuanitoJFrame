@@ -48,7 +48,7 @@ public class Juego extends JFrame implements Runnable, KeyListener {
     
     public Juego() { //Juego 
         // hago el applet de un tamaño 500,500
-                
+         setSize(800, 500);       
         iPosY = (getHeight()/(iMAXALTO + 1) ); //Darle valor a Y
         iPosX = (getWidth()/(iMAXANCHO +1) ); //Darle valor a X
         iPuntos = 0; //Inicia en 0 los puntos
@@ -84,7 +84,7 @@ public class Juego extends JFrame implements Runnable, KeyListener {
         
          for(int iI = 0; iI < 3 ; iI ++) {
              
-            basMalo = new Base(iPosX,iPosY, getWidth() / iMAXANCHO,
+            basMalo = new Base(100,100 + iI * 30, getWidth() / iMAXANCHO,
                 getHeight() / iMAXALTO,
                 Toolkit.getDefaultToolkit().getImage(urlImagenMalo));
             
@@ -124,22 +124,6 @@ public class Juego extends JFrame implements Runnable, KeyListener {
         // Empieza el hilo
         th.start ();
         
-        setTitle("JFrame");
-        setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE);
-        setSize(800,500);
-        setVisible(true);
-    }
-    
-	
-    /** 
-     * init
-     * 
-     * Metodo sobrescrito de la clase <code>Applet</code>.<P>
-     * En este metodo se inizializan las variables o se crean los objetos
-     * a usarse en el <code>Applet</code> y se definen funcionalidades.
-     * 
-     */
-    public void init() {
         
     }
 	
@@ -235,13 +219,13 @@ public class Juego extends JFrame implements Runnable, KeyListener {
             }
             
             else if (basPrincipal.intersecta(basMalo)){//si hay interseccion
-                    adcSonidoChimpy.play();//Sonido
+                    //adcSonidoChimpy.play();//Sonido
                     iPuntos += 10;//añade 10 puntos
                     //Regresa al chimpy
                     basMalo.setY(((int) (Math.random() * 7) + 1) * 
                             basMalo.getAlto() );
                     basMalo.setX(getWidth() - basMalo.getAncho());
-                    adcSonidoChimpy.play();
+                    //adcSonidoChimpy.play();
                     }
         }
         for ( Base basMalo : lklDiddys){ //Colision con diddys
@@ -254,7 +238,7 @@ public class Juego extends JFrame implements Runnable, KeyListener {
             }
             
              else if (basPrincipal.intersecta(basMalo)){//si hay interseccion
-                    adcSonidoChimpy.play();//Sonido
+                    //adcSonidoChimpy.play();//Sonido
                     iVidas --;//Resta una vida
                     //Regresa el diddy
                     basMalo.setY(((int) (Math.random() * 7) + 1) * basMalo.getAlto());
@@ -311,12 +295,11 @@ public class Juego extends JFrame implements Runnable, KeyListener {
      * 
      */
     public void paint2(Graphics graDibujo) {
-        
+       
         // si la imagen ya se cargo
         if (basPrincipal != null) {
                 //Dibuja la imagen de principal en el Applet
-                graDibujo.drawImage(basPrincipal.getImagen(), basPrincipal.getX(),
-                        basPrincipal.getY(),this);
+                basPrincipal.paint(graDibujo,this);
                 //Dibuja la imagen de malo en el Applet
                 basMalo.paint(graDibujo, this);
                 
@@ -390,22 +373,27 @@ public class Juego extends JFrame implements Runnable, KeyListener {
             // no hay codigo pero se debe escribir el metodo
          // si presiono flecha para arriba
         if(keyEvent.getKeyCode() == KeyEvent.VK_UP) {
-            basPrincipal.setY(basPrincipal.getY() - iPosY);
+            if(!bGameover && !bPausa){
+                basPrincipal.setY(basPrincipal.getY() - iPosY);
+            }
          }
         // si presiono flecha para abajo
         else if(keyEvent.getKeyCode() == KeyEvent.VK_DOWN) {
-            basPrincipal.setY(basPrincipal.getY() + iPosY);
-
+            if(!bGameover && !bPausa){
+                basPrincipal.setY(basPrincipal.getY() + iPosY);
+            }
         }
         // si presiono flecha a la izquierda
         else if(keyEvent.getKeyCode() == KeyEvent.VK_LEFT) { 
-            basPrincipal.setX(basPrincipal.getX() - iPosX);
-            
+            if(!bGameover && !bPausa){
+                basPrincipal.setX(basPrincipal.getX() - iPosX);
+            }
         }
         // si presiono flecha a la derecha
         else if(keyEvent.getKeyCode() == KeyEvent.VK_RIGHT){
-            basPrincipal.setX(basPrincipal.getX() + iPosX);
-            
+            if(!bGameover && !bPausa){
+                 basPrincipal.setX(basPrincipal.getX() + iPosX);
+            }
         }
         
         //Pregunto si el jugador activo o desactivo la pausa
@@ -422,6 +410,9 @@ public class Juego extends JFrame implements Runnable, KeyListener {
     public static void main(String[] args) {
         Juego Jframejuego = new Juego();
         Jframejuego.setVisible (true);
+        Jframejuego.setTitle("JFrame");
+        Jframejuego.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE);
+        Jframejuego.setSize(800,500);
     }
     
 }
