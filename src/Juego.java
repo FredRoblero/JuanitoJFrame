@@ -5,6 +5,7 @@
  * ????????????????????????????????????
  *
  * @author Fred Roblero Maldonado A01037070
+ * @author Iván Alejandro Leal Cervantes A00815154
  * @version 1.0
  * @date ?2&11&2015
  */
@@ -20,12 +21,15 @@ import java.net.URL;
 import java.util.LinkedList;
 import javax.swing.JFrame;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.FileReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  *
@@ -312,8 +316,10 @@ public class Juego extends JFrame implements Runnable, KeyListener {
                         getHeight() / 2);
             }
 
-            graDibujo.drawString("Vidas: " + iVidas, 20, 20);
-            graDibujo.drawString("Puntos: " + iPuntos, 100, 20);
+            graDibujo.drawString("Vidas: " + iVidas, getWidth() / 4 - 140, 
+                    getHeight() / 4 - 70);
+            graDibujo.drawString("Puntos: " + iPuntos, getWidth() / 4 - 140, 
+                    getHeight() / 4 - 40);
 
         } // sino se ha cargado se dibuja un mensaje 
         else {
@@ -333,7 +339,7 @@ public class Juego extends JFrame implements Runnable, KeyListener {
 
         //PrintWriter pwrOut = new PrintWriter(new FileWriter("Archivo.txt"));
         try (PrintWriter pwrOut = new PrintWriter(new FileWriter("Archivo.txt"))) {
-            pwrOut.println(bPausa);
+            pwrOut.println(bPausa? 1:0);
             pwrOut.println(iVidas);
             pwrOut.println(iPuntos);
             pwrOut.println(basPrincipal.getX());
@@ -352,6 +358,87 @@ public class Juego extends JFrame implements Runnable, KeyListener {
             e.printStackTrace();
         }
     }
+    
+     /**
+     * cargarJuego
+     *
+     * Metodo que carga los datos de un juego anterior que se haya guardado
+     *
+     */
+    
+    public void cargarJuego() {
+        int iaux;
+        URL urlImagenMalo = this.getClass().getResource("chimpy.gif");
+        URL urlImagenBueno = this.getClass().getResource("diddy.gif");
+        BufferedReader buffer;
+        try{
+//            // Abrimos el archivo
+//            FileInputStream fstream = new FileInputStream("Archivo.txt");
+//            // Creamos el objeto de entrada
+//            DataInputStream entrada = new DataInputStream(fstream);
+//            // Creamos el Buffer de Lectura
+//            BufferedReader buffer = new BufferedReader(new InputStreamReader(entrada));
+            buffer = new BufferedReader(new FileReader("Archivo.txt"));
+            String strLinea;
+            // Leer el archivo linea por linea
+            strLinea = buffer.readLine();
+                iaux = Integer.parseInt(strLinea);
+                bPausa = (iaux == 1);
+                strLinea = buffer.readLine();
+                iaux = Integer.parseInt(strLinea);
+                iVidas = iaux;
+                strLinea = buffer.readLine();
+                iaux = Integer.parseInt(strLinea);
+                iPuntos = iaux;
+                strLinea = buffer.readLine();
+                iaux = Integer.parseInt(strLinea);
+                basPrincipal.setX(iaux);
+                strLinea = buffer.readLine();
+                iaux = Integer.parseInt(strLinea);
+                basPrincipal.setY(iaux);
+                strLinea = buffer.readLine();
+                iaux = Integer.parseInt(strLinea);
+                lklChimpys.clear();
+                for (int iI = 0; iI < iaux; iI++) {
+                    basMalo = new Base(iPosX, iPosY, getWidth() / iMAXANCHO, 
+                    getHeight() / iMAXALTO, 
+                    Toolkit.getDefaultToolkit().getImage(urlImagenMalo));
+                    lklChimpys.add(basMalo);
+                }
+                for (Base basMalo:lklChimpys) {
+                    strLinea = buffer.readLine();
+                    iaux = Integer.parseInt(strLinea);
+                    basMalo.setX(iaux);
+                    strLinea = buffer.readLine();
+                    iaux = Integer.parseInt(strLinea);
+                    basMalo.setY(iaux);
+                }
+                strLinea = buffer.readLine();
+                iaux = Integer.parseInt(strLinea);
+                lklDiddys.clear();
+                for (int iI = 0; iI < iaux; iI++) {
+                    basMalo = new Base(iPosX, iPosY, getWidth() / iMAXANCHO, 
+                    getHeight() / iMAXALTO, 
+                    Toolkit.getDefaultToolkit().getImage(urlImagenBueno));
+                    lklDiddys.add(basMalo);
+                }
+                for (Base basMalo:lklDiddys) {
+                    strLinea = buffer.readLine();
+                    iaux = Integer.parseInt(strLinea);
+                    basMalo.setX(iaux);
+                    strLinea = buffer.readLine();
+                    iaux = Integer.parseInt(strLinea);
+                    basMalo.setY(iaux);
+                }
+    
+            // Cerramos el archivo
+            buffer.close();
+        }catch (Exception e){ //Catch de excepciones
+            System.err.println("Ocurrio un error: " + e.getMessage());
+        }
+    }
+
+    
 
     /**
      * keyPressed
@@ -422,11 +509,10 @@ public class Juego extends JFrame implements Runnable, KeyListener {
             bGameover = true;
         } // Pregunto si el jugador quiere guardar el juego
         else if (keyEvent.getKeyCode() == keyEvent.VK_G) {
-            //try {
-                guardarJuego();
-            //} catch (IOException e) {
-               // System.out.println("Error en " + e.toString());
-           // }
+            guardarJuego();
+        }
+        else if (keyEvent.getKeyCode() == keyEvent.VK_C) {
+            cargarJuego();
         }
     }
 
