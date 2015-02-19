@@ -91,16 +91,19 @@ public class Juego extends JFrame implements Runnable, KeyListener {
 
         //Inicializo la Linked List de Chimpys
         lklChimpys = new LinkedList<Base>();
+        
+        // genero un numero azar de 3 a 5
+        int iAzar = (int) (Math.random() * 3) + 3;
 
-        for (int iI = 0; iI < 3; iI++) {
+        for (int iI = 0; iI < iAzar; iI++) {
 
             basMalo = new Base(100, 100 + iI * 30, getWidth() / iMAXANCHO,
                     getHeight() / iMAXALTO,
                     Toolkit.getDefaultToolkit().getImage(urlImagenMalo));
 
             //Reposiciono al Mono
-            basMalo.setY((int) (Math.random()));
-            basMalo.setX((int) (Math.random()));
+            basMalo.setY(((int) (Math.random() * 7) + 1) * basMalo.getAlto());
+            basMalo.setX(((int) (Math.random() * 9) + 1) * basMalo.getAncho());
 
             lklChimpys.add(basMalo);
         }
@@ -108,7 +111,7 @@ public class Juego extends JFrame implements Runnable, KeyListener {
         //INicializo linked list de DIDDYS
         lklDiddys = new LinkedList<Base>();
 
-        for (int iI = 0; iI < 3; iI++) {
+        for (int iI = 0; iI < iAzar; iI++) {
 
             basMalo = new Base(iPosX, iPosY, getWidth() / iMAXANCHO,
                     getHeight() / iMAXALTO,
@@ -215,6 +218,8 @@ public class Juego extends JFrame implements Runnable, KeyListener {
         for (Base basMalo : lklChimpys) { //Colision con Chimpys
 
             if (basMalo.getX() < 0) {//Si colisiona con pared
+                basMalo.setY(((int) (Math.random() * 7) + 1)
+                        * basMalo.getAlto());
                 basMalo.setX(getWidth() - basMalo.getAncho());
             } else if (basPrincipal.intersecta(basMalo)) {//si hay interseccion
                 //adcSonidoChimpy.play();//Sonido
@@ -231,6 +236,7 @@ public class Juego extends JFrame implements Runnable, KeyListener {
             if (basMalo.getX() + basMalo.getAncho() //Si colisona con Pared
                     > getWidth()) {
                 basMalo.setX(0);
+                basMalo.setY(((int) (Math.random() * 7) + 1) * basMalo.getAlto());
 
             } else if (basPrincipal.intersecta(basMalo)) {//si hay interseccion
                 //adcSonidoChimpy.play();//Sonido
@@ -312,13 +318,16 @@ public class Juego extends JFrame implements Runnable, KeyListener {
             }
 
             if (bGameover) {
-                graDibujo.drawString("G A M E O V E R", getWidth() / 2 - 70,
-                        getHeight() / 2);
+                URL urlImagenFondo = this.getClass().getResource("gameover.png");
+                Image imaImagenFondo
+                        = Toolkit.getDefaultToolkit().getImage(urlImagenFondo);
+                graGraficaApplet.drawImage(imaImagenFondo, 0, 0,
+                        getWidth(), getHeight(), this);
             }
 
-            graDibujo.drawString("Vidas: " + iVidas, getWidth() / 4 - 140, 
+            graDibujo.drawString("Vidas: " + iVidas, getWidth() / 4 - 140,
                     getHeight() / 4 - 70);
-            graDibujo.drawString("Puntos: " + iPuntos, getWidth() / 4 - 140, 
+            graDibujo.drawString("Puntos: " + iPuntos, getWidth() / 4 - 140,
                     getHeight() / 4 - 40);
 
         } // sino se ha cargado se dibuja un mensaje 
@@ -327,21 +336,21 @@ public class Juego extends JFrame implements Runnable, KeyListener {
             graDibujo.drawString("No se cargo la imagen..", 20, 20);
         }
     }
-    
-     /**
+
+    /**
      * guardarJuego
      *
      * Metodo que guarda todos los datos del juego
      *
      */
-
     public void guardarJuego() {
 
         //PrintWriter pwrOut = new PrintWriter(new FileWriter("Archivo.txt"));
         try (PrintWriter pwrOut = new PrintWriter(new FileWriter("Archivo.txt"))) {
-            pwrOut.println(bPausa? 1:0);
+            pwrOut.println(bPausa ? 1 : 0);
             pwrOut.println(iVidas);
             pwrOut.println(iPuntos);
+            pwrOut.println(iVelocidad);
             pwrOut.println(basPrincipal.getX());
             pwrOut.println(basPrincipal.getY());
             pwrOut.println(lklChimpys.size());
@@ -358,20 +367,19 @@ public class Juego extends JFrame implements Runnable, KeyListener {
             e.printStackTrace();
         }
     }
-    
-     /**
+
+    /**
      * cargarJuego
      *
      * Metodo que carga los datos de un juego anterior que se haya guardado
      *
      */
-    
     public void cargarJuego() {
         int iaux;
         URL urlImagenMalo = this.getClass().getResource("chimpy.gif");
         URL urlImagenBueno = this.getClass().getResource("diddy.gif");
         BufferedReader buffer;
-        try{
+        try {
 //            // Abrimos el archivo
 //            FileInputStream fstream = new FileInputStream("Archivo.txt");
 //            // Creamos el objeto de entrada
@@ -382,63 +390,64 @@ public class Juego extends JFrame implements Runnable, KeyListener {
             String strLinea;
             // Leer el archivo linea por linea
             strLinea = buffer.readLine();
-                iaux = Integer.parseInt(strLinea);
-                bPausa = (iaux == 1);
+            iaux = Integer.parseInt(strLinea);
+            bPausa = (iaux == 1);
+            strLinea = buffer.readLine();
+            iaux = Integer.parseInt(strLinea);
+            iVidas = iaux;
+            strLinea = buffer.readLine();
+            iaux = Integer.parseInt(strLinea);
+            iPuntos = iaux;
+            strLinea = buffer.readLine();
+            iaux = Integer.parseInt(strLinea);
+            iVelocidad = iaux;
+            strLinea = buffer.readLine();
+            iaux = Integer.parseInt(strLinea);
+            basPrincipal.setX(iaux);
+            strLinea = buffer.readLine();
+            iaux = Integer.parseInt(strLinea);
+            basPrincipal.setY(iaux);
+            strLinea = buffer.readLine();
+            iaux = Integer.parseInt(strLinea);
+            lklChimpys.clear();
+            for (int iI = 0; iI < iaux; iI++) {
+                basMalo = new Base(iPosX, iPosY, getWidth() / iMAXANCHO,
+                        getHeight() / iMAXALTO,
+                        Toolkit.getDefaultToolkit().getImage(urlImagenMalo));
+                lklChimpys.add(basMalo);
+            }
+            for (Base basMalo : lklChimpys) {
                 strLinea = buffer.readLine();
                 iaux = Integer.parseInt(strLinea);
-                iVidas = iaux;
+                basMalo.setX(iaux);
                 strLinea = buffer.readLine();
                 iaux = Integer.parseInt(strLinea);
-                iPuntos = iaux;
+                basMalo.setY(iaux);
+            }
+            strLinea = buffer.readLine();
+            iaux = Integer.parseInt(strLinea);
+            lklDiddys.clear();
+            for (int iI = 0; iI < iaux; iI++) {
+                basMalo = new Base(iPosX, iPosY, getWidth() / iMAXANCHO,
+                        getHeight() / iMAXALTO,
+                        Toolkit.getDefaultToolkit().getImage(urlImagenBueno));
+                lklDiddys.add(basMalo);
+            }
+            for (Base basMalo : lklDiddys) {
                 strLinea = buffer.readLine();
                 iaux = Integer.parseInt(strLinea);
-                basPrincipal.setX(iaux);
+                basMalo.setX(iaux);
                 strLinea = buffer.readLine();
                 iaux = Integer.parseInt(strLinea);
-                basPrincipal.setY(iaux);
-                strLinea = buffer.readLine();
-                iaux = Integer.parseInt(strLinea);
-                lklChimpys.clear();
-                for (int iI = 0; iI < iaux; iI++) {
-                    basMalo = new Base(iPosX, iPosY, getWidth() / iMAXANCHO, 
-                    getHeight() / iMAXALTO, 
-                    Toolkit.getDefaultToolkit().getImage(urlImagenMalo));
-                    lklChimpys.add(basMalo);
-                }
-                for (Base basMalo:lklChimpys) {
-                    strLinea = buffer.readLine();
-                    iaux = Integer.parseInt(strLinea);
-                    basMalo.setX(iaux);
-                    strLinea = buffer.readLine();
-                    iaux = Integer.parseInt(strLinea);
-                    basMalo.setY(iaux);
-                }
-                strLinea = buffer.readLine();
-                iaux = Integer.parseInt(strLinea);
-                lklDiddys.clear();
-                for (int iI = 0; iI < iaux; iI++) {
-                    basMalo = new Base(iPosX, iPosY, getWidth() / iMAXANCHO, 
-                    getHeight() / iMAXALTO, 
-                    Toolkit.getDefaultToolkit().getImage(urlImagenBueno));
-                    lklDiddys.add(basMalo);
-                }
-                for (Base basMalo:lklDiddys) {
-                    strLinea = buffer.readLine();
-                    iaux = Integer.parseInt(strLinea);
-                    basMalo.setX(iaux);
-                    strLinea = buffer.readLine();
-                    iaux = Integer.parseInt(strLinea);
-                    basMalo.setY(iaux);
-                }
-    
+                basMalo.setY(iaux);
+            }
+
             // Cerramos el archivo
             buffer.close();
-        }catch (Exception e){ //Catch de excepciones
+        } catch (Exception e) { //Catch de excepciones
             System.err.println("Ocurrio un error: " + e.getMessage());
         }
     }
-
-    
 
     /**
      * keyPressed
@@ -510,8 +519,7 @@ public class Juego extends JFrame implements Runnable, KeyListener {
         } // Pregunto si el jugador quiere guardar el juego
         else if (keyEvent.getKeyCode() == keyEvent.VK_G) {
             guardarJuego();
-        }
-        else if (keyEvent.getKeyCode() == keyEvent.VK_C) {
+        } else if (keyEvent.getKeyCode() == keyEvent.VK_C) {
             cargarJuego();
         }
     }
